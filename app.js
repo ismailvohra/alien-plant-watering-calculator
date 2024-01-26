@@ -1,3 +1,4 @@
+
 // Function to fetch and process data from 'data.json'
 async function fetchData() {
   try {
@@ -20,9 +21,9 @@ async function fetchConstants() {
   }
 }
 
+
 // Function to fetch constants and populate dropdown menu
-async function populateDropdown(datatype, dropdownId) {
-  const data = await fetchConstants();
+async function populateDropdown(data, datatype, dropdownId) {
   if (!data) return;
 
   const dropdown = document.getElementById(dropdownId);
@@ -38,10 +39,11 @@ async function populateDropdown(datatype, dropdownId) {
 
 // Function to initialize the page
 async function initialize() {
+  const data = await fetchConstants();
   await Promise.all([
-    populateDropdown("pot", "potType"),
-    populateDropdown("species", "plantType"),
-    populateDropdown("season", "season")
+    populateDropdown(data,"pot", "potType"),
+    populateDropdown(data,"species", "plantType"),
+    populateDropdown(data, "season", "season")
   ]);
 }
 
