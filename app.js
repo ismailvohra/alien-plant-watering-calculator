@@ -1,33 +1,36 @@
 // Function to fetch and process data from 'data.json'
 async function fetchData() {
   try {
-      const response = await fetch('data.json');
-      const data = await response.json();
-      return data;
+    const response = await fetch('data.json');
+    const data = await response.json();
+    return data;
   } catch (error) {
-      console.error('Error fetching data:', error);
+    console.error('Error fetching data:', error);
   }
 }
 
 // Function to fetch and process constants from 'constants.json'
 async function fetchConstants() {
   try {
-      const response = await fetch('constants.json');
-      const data = await response.json();
-      return data;
+    const response = await fetch('constants.json');
+    const data = await response.json();
+    return data;
   } catch (error) {
-      console.error('Error fetching data:', error);
+    console.error('Error fetching constants:', error);
   }
 }
 
-//Function to fetch constants and populate pot type dropdown menu
-async function populatePottype() {
-  const data = await fetchConstants();
+const cachedConstants = fetchConstants();
+const cachedData = fetchData();
+
+// Function to fetch constants and populate dropdown menu
+async function populateDropdown(datatype, dropdownId) {
+  const data = cachedConstants;
   if (!data) return;
 
-  const dropdown = document.getElementById("potType");
+  const dropdown = document.getElementById(dropdownId);
   for (let i = 0; i < data.length; i++) {
-    if(data[i].datatype === "pot") {
+    if (data[i].datatype === datatype) {
       var option = document.createElement("option");
       option.text = data[i].name;
       option.value = data[i].name;
@@ -36,53 +39,25 @@ async function populatePottype() {
   }
 }
 
-//Function to fetch constants and populate plant type dropdown menu
-async function populatePlantType() {
-  const data = await fetchConstants();
-  if (!data) return;
-
-  const dropdown = document.getElementById("plantType");
-  for (let i = 0; i < data.length; i++) {
-    if(data[i].datatype === "species") {
-      var option = document.createElement("option");
-      option.text = data[i].name;
-      option.value = data[i].name;
-      dropdown.add(option);
-    }
-  }
+// Function to initialize the page
+async function initialize() {
+  await Promise.all([
+    populateDropdown("pot", "potType"),
+    populateDropdown("species", "plantType"),
+    populateDropdown("season", "season")
+  ]);
 }
 
-//Function to fetch constants and populate season dropdown menu
-async function populateSeason() {
-  const data = await fetchConstants();
-  if (!data) return;
-
-  const dropdown = document.getElementById("season");
-  for (let i = 0; i < data.length; i++) {
-    if(data[i].datatype === "season") {
-      var option = document.createElement("option");
-      option.text = data[i].name;
-      option.value = data[i].name;
-      dropdown.add(option);
-    }
-  }
-}
-
-function initialize() {
-  populatePottype()
-  populatePlantType()
-  populateSeason()
-
-}
-
+// Function to calculate pot volume
 function calculatePotVolume(diameter, height) {
   const radius = diameter / 2;
   return Math.PI * Math.pow(radius, 2) * height;
 }
 
+
 //Function to calculate water and fertilizer recommendations
 async function calculateRecommendations(potVolume, potType, plantType, season) {
-  const data = await fetchConstants();
+  const data = cachedConstants;
   if (!data) return;
 
   let potdata
@@ -116,7 +91,7 @@ async function calculateRecommendations(potVolume, potType, plantType, season) {
 
 // Function to search recommendations data and calculate statistics based on it and user inputs
 async function findRecommendations(potVolume, potType, plantType, season) {
-  const data = await fetchData();
+  const data = cachedData;
   if (!data) return;
 
   let similarCount = 0
